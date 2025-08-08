@@ -14,7 +14,7 @@ function React() {
       const nextValue = typeof next === "function" ? next(hooks[idx]) : next;
       if (Object.is(nextValue, hooks[idx])) return; // 변경 없음이면 스킵(선택)
       hooks[idx] = nextValue;
-      render(); // 리렌더
+      debouncedRender();
     };
 
     return [state, setState];
@@ -33,7 +33,20 @@ function React() {
     root.innerHTML = rootComponent();
   }
 
+  // debounceFrame 적용
+  const debouncedRender = debounceFrame(() => {
+    render();
+  });
+
   return { render, useState };
+}
+
+function debounceFrame(callback) {
+  let nextFrameCallback = -1;
+  return () => {
+    cancelAnimationFrame(nextFrameCallback);
+    nextFrameCallback = requestAnimationFrame(callback);
+  };
 }
 
 export const { render, useState } = React();
